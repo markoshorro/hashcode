@@ -5,9 +5,7 @@ import re
 import numpy as np
 import pandas as pd
 
-fname = ["a_example.txt", "b_read_on.txt", "c_incunabula.txt",
-         "d_tough_choices.txt",
-         "e_so_many_books.txt", "f_libraries_of_the_world.txt"]
+fname = ["a_example.txt"]
 
 
 def read_input(fin):
@@ -33,14 +31,21 @@ def read_input(fin):
     return B, L, D, books, libraries
 
 
-def value(libraries, nbooks):
-    v = sum([books[i] for i in libraries[1][0:nbooks]])
-    return v
+def value(books, libraries, nbooks):
+    s = 0
+    n = 0
+    i = 0
+    while n < nbooks and i < len(libraries[1]):
+        val = books[libraries[1][i]]
+        if val > 0:
+            s += val
+            n += 1
+        i += 1
+    return s
 
 
-def fitness(library, days):
-    v = (value(library, days * library[0][2])/library[0][1])
-    return v
+def fitness(books, library, days):
+    return value(books, library, days * library[0][2])/library[0][1]
 
 def create_sim_matrix(books, libraries):
     matrix = np.zeros((len(libraries), len(libraries)))
@@ -53,30 +58,10 @@ def create_sim_matrix(books, libraries):
 
 
 if __name__ == '__main__':
-    B, L, D, books, libraries = read_input(fname)
-    current_fitness = np.array([fitness(x, D) for x in libraries])
-    selected_libraries = []
-    while D > 0 and len(libraries) > 0:
-        print(current_fitness)
-        pos = np.argmax(current_fitness)
-        l = libraries[pos]
-        print(l)
-        D = D - l[0][1]
-        if D < 0:
-            break
-        nbooks = D * l[0][2]
-        l[1] = l[1][0:nbooks]
-        selected_libraries.append(l.copy())
-        for b in l[1]:
-            books[b] = 0
-        current_fitness = np.array([fitness(x, D) for x in libraries])
-
-    print(selected_libraries)
-
-if __name__ == '__main__':
     for inputfile in fname:
         B, L, D, books, libraries = read_input(inputfile)
-        current_fitness = np.array([fitness(x, D) for x in libraries])
+        libraries = sorted(libraries, key=lambda x: fitness(books, x, D), reverse=True)
+        current_fitness = np.array([fitness(books, x, D) for x in libraries])
         selected_libraries = []
         while D > 0 and len(libraries) > 0:
             print(current_fitness)
@@ -91,7 +76,7 @@ if __name__ == '__main__':
             selected_libraries.append(l.copy())
             for b in l[1]:
                 books[b] = 0
-            current_fitness = np.array([fitness(x, D) for x in libraries])
+            current_fitness = np.array([fitness(books, x, D) for x in libraries])
 
         with open(inputfile.split(".txt")[0] + ".out", "w") as f:
             f.write(str(len(selected_libraries)) + "\n")
