@@ -29,7 +29,6 @@ def read_input(fin):
 
 def value(libraries, nbooks):
     v = sum([books[i] for i in libraries[1][0:nbooks]])
-    print(v)
     return v
 
 def fitness(library, days):
@@ -43,24 +42,26 @@ def create_sim_matrix(books, libraries):
             v = sum([books[b] for b in list(set.intersection(set(libraries[i][1]), set(libraries[j][1])))])
             matrix[i][j] = v
             matrix[j][i] = v
-    print(matrix)
     return matrix
 
 
 if __name__ == '__main__':
     B, L, D, books, libraries = read_input(fname)
-    m = create_sim_matrix(books, libraries)
     current_fitness = np.array([fitness(x, D) for x in libraries])
     selected_libraries = []
     while D > 0 and len(libraries) > 0:
+        print(current_fitness)
         pos = np.argmax(current_fitness)
         l = libraries[pos]
+        print(l)
         D = D - l[0][1]
         if D < 0:
             break
         nbooks = D * l[0][2]
         l[1] = l[1][0:nbooks]
-        selected_libraries.append(l)
-        current_fitness -= m[l[0][-1]]
+        selected_libraries.append(l.copy())
+        for b in l[1]:
+            books[b] = 0
+        current_fitness = np.array([fitness(x, D) for x in libraries])
 
     print(selected_libraries)
