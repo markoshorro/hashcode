@@ -12,16 +12,18 @@ def read_input(fin):
     with open(fin) as f:
         B, L, D = [int(v) for v in f.readline().split(' ')]
         books = [int(v) for v in f.readline().split(' ')]
+        idl = 0
         toggle = True
         libraries = []
         p = []
         for l in f:
             if toggle:
-                p.append([int(v) for v in l.split(' ')])
+                p.append([int(v) for v in l.split(' ')] + [idl])
             else:
                 p.append(sorted([int(v) for v in l.split(' ')], key=lambda i: books[i], reverse=True))
                 libraries.append(p.copy())
                 p.clear()
+                idl = idl + 1
             toggle = not toggle
     return B, L, D, books, libraries
 
