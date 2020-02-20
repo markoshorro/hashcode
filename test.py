@@ -48,17 +48,19 @@ def create_sim_matrix(books, libraries):
 
 
 if __name__ == '__main__':
-
     B, L, D, books, libraries = read_input(fname)
-    libraries = sorted(libraries, key=lambda x: fitness(x, D))
-    create_sim_matrix(books, libraries)
+    m = create_sim_matrix(books, libraries)
+    current_fitness = np.array([fitness(x, D) for x in libraries])
     selected_libraries = []
     while D > 0 and len(libraries) > 0:
-        D = D - libraries[-1][0][1]
+        pos = np.argmax(current_fitness)
+        l = libraries[pos]
+        D = D - l[0][1]
         if D < 0:
             break
-        l = libraries[-1]
         nbooks = D * l[0][2]
         l[1] = l[1][0:nbooks]
         selected_libraries.append(l)
-        libraries = libraries[0:-1]
+        current_fitness -= m[l[0][-1]]
+
+    print(selected_libraries)
