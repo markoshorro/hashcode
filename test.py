@@ -36,11 +36,22 @@ def fitness(library, days):
     v = (value(library, days * library[0][2])/library[0][1])
     return v
 
+def create_sim_matrix(books, libraries):
+    matrix = np.zeros((len(libraries), len(libraries)))
+    for i in range(len(libraries)):
+        for j in range(len(libraries)):
+            v = sum([books[b] for b in list(set.intersection(set(libraries[i][1]), set(libraries[j][1])))])
+            matrix[i][j] = v
+            matrix[j][i] = v
+    print(matrix)
+    return matrix
+
+
 if __name__ == '__main__':
+
     B, L, D, books, libraries = read_input(fname)
-    print(books)
     libraries = sorted(libraries, key=lambda x: fitness(x, D))
-    print(libraries)
+    create_sim_matrix(books, libraries)
     selected_libraries = []
     while D > 0 and len(libraries) > 0:
         D = D - libraries[-1][0][1]
