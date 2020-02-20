@@ -47,7 +47,7 @@ def value(books, library, nbooks):
     return sum_not_0(books, library[1], nbooks)[0]
 
 def fitness(books, library, days):
-    return value(books, library, days * library[0][2])/library[0][1]
+    return value(books, library, days * library[0][2]) * library[0][2]/library[0][1]
 
 def create_sim_matrix(books, libraries):
     matrix = np.zeros((len(libraries), len(libraries)))
