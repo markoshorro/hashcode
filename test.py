@@ -5,7 +5,9 @@ import re
 import numpy as np
 import pandas as pd
 
-fname = "a_example.txt"
+fname = ["a_example.txt", "b_read_on.txt", "c_incunabula.txt",
+         "d_tough_choices.txt",
+         "e_so_many_books.txt", "f_libraries_of_the_world.txt"]
 
 
 def read_input(fin):
@@ -17,19 +19,24 @@ def read_input(fin):
         libraries = []
         p = []
         for l in f:
+            if l == "\n":
+                continue
             if toggle:
                 p.append([int(v) for v in l.split(' ')] + [idl])
             else:
-                p.append(sorted([int(v) for v in l.split(' ')], key=lambda i: books[i], reverse=True))
+                p.append(sorted([int(v) for v in l.split(' ')],
+                                key=lambda i: books[i], reverse=True))
                 libraries.append(p.copy())
                 p.clear()
                 idl = idl + 1
             toggle = not toggle
     return B, L, D, books, libraries
 
+
 def value(libraries, nbooks):
     v = sum([books[i] for i in libraries[1][0:nbooks]])
     return v
+
 
 def fitness(library, days):
     v = (value(library, days * library[0][2])/library[0][1])
@@ -65,3 +72,31 @@ if __name__ == '__main__':
         current_fitness = np.array([fitness(x, D) for x in libraries])
 
     print(selected_libraries)
+
+if __name__ == '__main__':
+    for inputfile in fname:
+        B, L, D, books, libraries = read_input(inputfile)
+        current_fitness = np.array([fitness(x, D) for x in libraries])
+        selected_libraries = []
+        while D > 0 and len(libraries) > 0:
+            print(current_fitness)
+            pos = np.argmax(current_fitness)
+            l = libraries[pos]
+            print(l)
+            D = D - l[0][1]
+            if D < 0:
+                break
+            nbooks = D * l[0][2]
+            l[1] = l[1][0:nbooks]
+            selected_libraries.append(l.copy())
+            for b in l[1]:
+                books[b] = 0
+            current_fitness = np.array([fitness(x, D) for x in libraries])
+
+        with open(inputfile.split(".txt")[0] + ".out", "w") as f:
+            f.write(str(len(selected_libraries)) + "\n")
+            for library in selected_libraries:
+                f.write(str(library[0][-1]) + " " + str(len(library[1])) + "\n")
+                for book in library[1]:
+                    f.write(str(book) + " ")
+                f.write("\n")
