@@ -76,6 +76,7 @@ if __name__ == '__main__':
             selected_libraries.append(l.copy())
             for b in l[1]:
                 books[b] = 0
+            l[1] = []
             current_fitness = np.array([fitness(books, x, D) for x in libraries])
 
         with open(inputfile.split(".txt")[0] + ".out", "w") as f:
