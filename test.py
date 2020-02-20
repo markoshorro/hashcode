@@ -31,18 +31,20 @@ def read_input(fin):
     return B, L, D, books, libraries
 
 
-def value(books, libraries, nbooks):
+def sum_not_0(books, lbooks, nbooks):
     s = 0
-    n = 0
+    selection = []
     i = 0
-    while n < nbooks and i < len(libraries[1]):
-        val = books[libraries[1][i]]
+    while len(selection) < nbooks and i < len(lbooks):
+        val = books[lbooks[i]]
         if val > 0:
             s += val
-            n += 1
+            selection.append(lbooks[i])
         i += 1
-    return s
+    return s, selection
 
+def value(books, library, nbooks):
+    return sum_not_0(books, library[1], nbooks)[0]
 
 def fitness(books, library, days):
     return value(books, library, days * library[0][2])/library[0][1]
@@ -64,15 +66,13 @@ if __name__ == '__main__':
         current_fitness = np.array([fitness(books, x, D) for x in libraries])
         selected_libraries = []
         while D > 0 and len(libraries) > 0:
-            print(current_fitness)
             pos = np.argmax(current_fitness)
             l = libraries[pos]
-            print(l)
             D = D - l[0][1]
             if D < 0:
                 break
             nbooks = D * l[0][2]
-            l[1] = l[1][0:nbooks]
+            l[1] = sum_not_0(books, l[1], nbooks)[1]
             selected_libraries.append(l.copy())
             for b in l[1]:
                 books[b] = 0
