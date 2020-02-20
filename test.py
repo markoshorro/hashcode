@@ -26,7 +26,7 @@ def read_input(fin):
     return B, L, D, books, libraries
 
 def value(libraries, nbooks):
-    v = sum(libraries[1][0:nbooks])
+    v = sum([books[i] for i in libraries[1][0:nbooks]])
     print(v)
     return v
 
@@ -34,14 +34,18 @@ def fitness(library, days):
     v = (value(library, days * library[0][2])/library[0][1])
     return v
 
-B, L, D, books, libraries = read_input(fname)
-print(books)
-libraries = sorted(libraries, key=lambda x: fitness(x, D))
-print(libraries)
-selected_libraries = []
-while D > 0 and len(libraries) > 0:
-    selected_libraries.append(libraries[-1])
-    D = D - libraries[-1][0][1]
-    libraries = libraries[0:-1]
-
-print(selected_libraries)
+if __name__ == '__main__':
+    B, L, D, books, libraries = read_input(fname)
+    print(books)
+    libraries = sorted(libraries, key=lambda x: fitness(x, D))
+    print(libraries)
+    selected_libraries = []
+    while D > 0 and len(libraries) > 0:
+        D = D - libraries[-1][0][1]
+        if D < 0:
+            break
+        l = libraries[-1]
+        nbooks = D * l[0][2]
+        l[1] = l[1][0:nbooks]
+        selected_libraries.append(l)
+        libraries = libraries[0:-1]
